@@ -1,7 +1,7 @@
 import discord
+import os
 from groq import Groq
 
-TOKEN = "MTUzNTM5OTgzNTk3MTM1ODcyMA.G_Mnr5.8UTW8bwB-YdEGskWXs6aM0cHV3sNmWk2WKsquk"
 client = Groq(api_key="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")
 
 intents = discord.Intents.default()
@@ -51,4 +51,4 @@ async def on_message(message):
             print(f"صار خطأ: {e}")
             await message.channel.send(f"خطأ تقني: {e}")
 
-bot.run(TOKEN)
+bot.run(os.environ.get('TOKEN'))
