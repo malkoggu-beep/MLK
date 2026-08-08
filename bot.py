@@ -1,7 +1,7 @@
 import discord
 from groq import Groq
 
-TOKEN = "MTUzNTM5OTgzNTk3MTM1ODcyMA.GSsPxv.m1-Iuntkl_ZMD8UzBHeuGzQqEf2euyV4I6O3ho"
+TOKEN = "MTUzNTM5OTgzNTk3MTM1ODcyMA.G1IQLd.iIJZv99_sJD7i6Wm4D7UM-cJ6mpzfOOlcBcG-U"
 client = Groq(api_key="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")
 
 intents = discord.Intents.default()
