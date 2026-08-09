@@ -1,3 +1,2 @@
-flask
 discord.py
 groq>=0.4.0
