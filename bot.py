@@ -77,7 +77,7 @@ async def on_message(message):
 
       channel_histories[channel_id].append({'role': 'user', 'content': user_text})
 
-      if len(channel_histories[channel_id]) > 11:
+      if len(channel_histories[channel_id]) > 31:
         channel_histories[channel_id].pop(1)
 
       chat_completion = client.chat.completions.create(
