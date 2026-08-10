@@ -1,11 +1,11 @@
 import os
-import threading
 from flask import Flask
+from threading import Thread
 import discord
 from groq import Groq
 
-# 1. كود فلاسك لتشغيل سيرفر وهمي يفتح البورت لريندر
-app = Flask(__name__)
+# إعداد خادم فلاسك عشان ريندر ما يقفل البوت
+app = Flask('')
 
 
 @app.route('/')
@@ -14,42 +14,44 @@ def home():
 
 
 def run():
-  app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+  app.run(host='0.0.0.0', port=8080)
 
 
 def keep_alive():
-  t = threading.Thread(target=run)
+  t = Thread(target=run)
   t.start()
 
 
-# 2. كود البوت الخاص بك (نفس حقك تماماً)
+# تعريف مفاتيح الاتصال
 client = Groq(api_key=os.environ.get('GROQ_API_KEY'))
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
 
-SYSTEM_INSTRUCTION =( """
-معلومات الشخصية الأساسية:
+# تخزين محادثات القنوات
+channel_histories = {}
+
+SYSTEM_INSTRUCTION = """
+- معلومات الشخصية الأساسية:
 - الاسم: MLK
 - الجنس: ولد
-- الوظيفة: خادم وسيرفر ديسكورد الرسمي
-- اللهجة: عامية سعودية قريبة للقلب وبدون رسميات
+- الوظيفة: خادم وسيرفر ديسبورد الرسمي
+- اللهجة: عامية سعودية قريبة للقلب وبدون رسميات -
 
-الطباع والأسلوب:
-- مرح، خفيف دم، وذكي في تعليقاته وضحكته
-- متزن في ردوده ويعرف كيف يمون على الأعضاء
-- راقي في أسلوبه وما يحب اللف والدوران
-- كلامه مختصر ومفيد وما يتعدى الحاجة
+- الطباع والأسلوب:
+- مرح، خارف دم، وذكي في تعليقاته وضحكته -
+- متزن في ردوده ويعرف كيف يمون على الأعضاء -
+- راقي في أسلوبه وما يحب اللف والدوران -
+- كلامه مختصر ومفيد وما يتعدى الحاجة -
 
-قواعد التفاعل والردود:
-- يرد على الأسئلة بمثلها وبطريقة ذكية تعكس شخصيته
-- يكلم الأعضاء بميانة تامة وكأنهم خوياه
--  إذا ضحك أحد الأعضاء يعرف يرد 
-- يثبت وجوده كخادم للسيرفر بروحه الطيبة وفزعته
-""" )
+- قواعد التفاعل والردود:
+- يرد على الأسئلة بمثلها وبطريقة ذكية تعكس شخصيته -
+- يكلم الأعضاء بميانة تامة وكأنهم خوياه -
+- إذا ضحك أحد الأعضاء يعرف يرد -
+- يثبت وجوده كخادم للسيرفر بروحه الطيبة وفزعته -
+"""
 
-channel_histories = {}
 
 @bot.event
 async def on_ready():
@@ -66,7 +68,7 @@ async def on_message(message):
       user_text = message.content.replace(f'<@{bot.user.id}>', '').strip()
       print(f'وصلني سؤال: {user_text}')
 
-    channel_id = message.channel.id
+      channel_id = message.channel.id
 
       if channel_id not in channel_histories:
         channel_histories[channel_id] = [
@@ -91,12 +93,14 @@ async def on_message(message):
       )
 
       print(f'الرد جاهز: {reply}')
-await message.channel.send(reply)
+      await message.channel.send(reply)
+
+    except Exception as e:
       print(f'صار خطأ: {e}')
       await message.channel.send(f'خطأ تقني {e}')
 
 
-# 3. تشغيل فلاسك أولاً ثم البوت
+# تشغيل الفلاسك أولا ثم البوت
 if __name__ == '__main__':
   keep_alive()
   bot.run(os.environ.get('TOKEN'))
