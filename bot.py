@@ -5,7 +5,7 @@ import discord
 from groq import Groq
 
 # 1. كود فلاسك لتشغيل سيرفر وهمي يفتح البورت لريندر
-app = Flask('')
+app = Flask(__name__)
 
 
 @app.route('/')
