@@ -1,19 +1,51 @@
-from flask import Flask
 import os
 import threading
+import discord
+from flask import Flask
+from groq import Groq
 
+# 1. إعداد فلاسك (Keep Alive)
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "I am alive!"
+    return "Bot is running!"
 
 def run():
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
 def keep_alive():
     t = threading.Thread(target=run)
     t.start()
+
+# 2. إعدادات البوت والذكاء الاصطناعي
+client_groq = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+intents = discord.Intents.default()
+intents.message_content = True
+bot = discord.Client(intents=intents)
+
+# (ضع الـ System Instruction هنا كما كانت عندك)
+SYSTEM_INSTRUCTION = "أنت بوت ديسكورد..." 
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    
+    if bot.user.mentioned_in(message):
+        user_text = message.content.replace(f'<@{bot.user.id}>', '').strip()
+        chat_completion = client_groq.chat.completions.create(
+            messages=[{"role": "system", "content": SYSTEM_INSTRUCTION},
+                      {"role": "user", "content": user_text}],
+            model="llama-3.3-70b-versatile"
+        )
+        reply = chat_completion.choices[0].message.content
+        await message.channel.send(reply)
+
+# 3. التشغيل النهائي
+if __name__ == "__main__":
+    keep_alive()
+    bot.run(os.environ.get("TOKEN"))
 import discord
 import os
 from groq import Groq
