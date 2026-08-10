@@ -49,6 +49,7 @@ SYSTEM_INSTRUCTION =( """
 - يثبت وجوده كخادم للسيرفر بروحه الطيبة وفزعته
 """ )
 
+channel_histories = {}
 
 @bot.event
 async def on_ready():
@@ -65,19 +66,32 @@ async def on_message(message):
       user_text = message.content.replace(f'<@{bot.user.id}>', '').strip()
       print(f'وصلني سؤال: {user_text}')
 
+    channel_id = message.channel.id
+
+      if channel_id not in channel_histories:
+        channel_histories[channel_id] = [
+            {'role': 'system', 'content': SYSTEM_INSTRUCTION}
+        ]
+
+      channel_histories[channel_id].append({'role': 'user', 'content': user_text})
+
+      if len(channel_histories[channel_id]) > 11:
+        channel_histories[channel_id].pop(1)
+
       chat_completion = client.chat.completions.create(
-          messages=[
-              {'role': 'system', 'content': SYSTEM_INSTRUCTION},
-              {'role': 'user', 'content': user_text},
-          ],
+          messages=channel_histories[channel_id],
           model='llama-3.3-70b-versatile',
           temperature=0.3,
       )
 
       reply = chat_completion.choices[0].message.content
+
+      channel_histories[channel_id].append(
+          {'role': 'assistant', 'content': reply}
+      )
+
       print(f'الرد جاهز: {reply}')
-      await message.channel.send(reply)
-    except Exception as e:
+await message.channel.send(reply)
       print(f'صار خطأ: {e}')
       await message.channel.send(f'خطأ تقني {e}')
 
