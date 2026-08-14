@@ -1,27 +1,4 @@
 import os
-from flask import Flask
-from threading import Thread
-import discord
-import google.generativeai as genai
-
-# إعداد خادم فلاسك عشان ريندر ما يقفل البوت #
-app = Flask("")
-
-
-@app.route("/")
-def home():
-  return "I am alive!"
-
-
-def run():
-  app.run(host="0.0.0.0", port=8080)
-
-
-def keep_alive():
-  t = Thread(target=run)
-  t.start()
-
-
 # تعريف مفتاح قوقل جيمني #
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
@@ -102,7 +79,5 @@ async def on_message(message):
       await message.channel.send("عذرًا، حدث خطأ أثناء معالجة طلبك.")
 
 
-# تشغيل الفلاسك أولا ثم البوت #
 if __name__ == "__main__":
-  keep_alive()
   bot.run(os.environ.get("TOKEN"))
