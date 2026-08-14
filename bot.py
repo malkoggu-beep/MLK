@@ -1,4 +1,5 @@
 import os
+import google.generativeai as genai
 # تعريف مفتاح قوقل جيمني #
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
